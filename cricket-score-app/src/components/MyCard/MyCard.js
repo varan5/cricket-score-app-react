@@ -1,9 +1,14 @@
-import React from 'react'
+import React, { Fragment, useState } from 'react'
 import {
   Button,
   Card,
   CardActions,
   CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
   Typography,
 } from '@material-ui/core'
@@ -12,14 +17,57 @@ import './MyCardStyles.css'
 import { getMatchDetails } from '../../api/Api'
 
 const MyCard = ({ match }) => {
+  const [details, setDetails] = useState({})
+  const [openDialogBox, setOpenDialogBox] = useState(false)
+
   const handleShowDetailsButton = (id) => {
     getMatchDetails(id)
       .then((data) => {
         console.log(data)
+        setDetails(data)
+        handleOpenDialogBox()
       })
       .catch((err) => {
         console.log('Error: ' + err)
       })
+  }
+
+  const handleCloseDialogBox = () => {
+    setOpenDialogBox(false)
+  }
+
+  const handleOpenDialogBox = () => {
+    setOpenDialogBox(true)
+  }
+
+  const getDialogBox = () => {
+    ;<Dialog open={openDialogBox} close={handleCloseDialogBox}>
+      <DialogTitle id="alert-dialog-title">Match Details</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          <Typography>{details.stat}</Typography>
+          <Typography>
+            Match
+            <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>
+              {details.matchStarted ? 'started' : 'Still not started'}
+            </span>
+          </Typography>
+
+          <Typography>
+            Score
+            <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>
+              {details.score}
+            </span>
+          </Typography>
+        </DialogContentText>
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={handleCloseDialogBox} color="primary" autoFocus>
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
   }
 
   const getMatchCard = () => {
@@ -65,7 +113,12 @@ const MyCard = ({ match }) => {
     )
   }
 
-  return <div>{getMatchCard()}</div>
+  return (
+    <>
+      {getMatchCard()}
+      {getDialogBox()}
+    </>
+  )
 }
 
 export default MyCard
